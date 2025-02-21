@@ -39,3 +39,45 @@ steps:
     targetPath: '$(Build.ArtifactStagingDirectory)'
     publishLocation: 'pipeline'
   displayName: 'Publish npm artifact'
+
+
+
+
+
+
+- script: npm install -g
+- script: sudo npm install -g
+
+# - script: npm install --only=dev
+# - script: npm install --only=prod
+# - task: Npm@1
+#   inputs:
+#      command: 'install'
+
+- script: npx mocha
+
+
+- script: npm install -g @angular/cli
+
+# typescript to javascript compiler
+# - script: tsc --target ES6 --strict true --project tsconfigs/production.json
+
+- script: mocha test --reporter mocha-junit-reporter
+
+- task: PublishTestResults@2
+  condition: succeededOrFailed()
+  inputs:
+    testRunner: JUnit
+    testResultsFiles: '**/test-results.xml'
+
+
+
+- script: |
+    nyc --reporter=cobertura --reporter=html \
+    npm test -- --reporter mocha-junit-reporter --reporter-options mochaFile=./test-results.xml
+  displayName: 'Build code coverage report'
+
+- task: PublishCodeCoverageResults@2
+  inputs: 
+    summaryFileLocation: '$(System.DefaultWorkingDirectory)/**/*coverage.xml'
+
