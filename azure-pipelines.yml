@@ -5,7 +5,7 @@ pool:
   vmImage: 'ubuntu-latest'
 
 stages:
-- stage: installDependencies
+- stage: package
   # pool:
   #   vmImage: 'ubuntu-latest'
   jobs:
@@ -23,7 +23,6 @@ stages:
     # - script: npm install -g
     # - script: sudo npm install -g
 
-
     # - script: npm install --only=dev
     # - script: npm install --only=prod
     # - task: Npm@1
@@ -31,13 +30,6 @@ stages:
     #      command: 'install'
 
 
-- stage: package
-  dependsOn: installDependencies
-  # condition: succeeded('installDependencies') #it is already checked by dependsOn
-
-  # pool:
-  #   vmImage: 'ubuntu-latest'
-  jobs:
   - job: build
     steps:
 
@@ -60,6 +52,7 @@ stages:
 
 - stage: publish
   dependsOn: package
+  # condition: succeeded('package') #it is already checked by dependsOn
   # pool:
   #   vmImage: 'ubuntu-latest'
   jobs:
