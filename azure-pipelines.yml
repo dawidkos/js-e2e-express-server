@@ -9,7 +9,7 @@ stages:
   # pool:
   #   vmImage: 'ubuntu-latest'
   jobs:
-  - job: install
+  - job: build
     steps:
     - task: UseNode@1
       inputs:
@@ -30,8 +30,6 @@ stages:
     #      command: 'install'
 
 
-  - job: build
-    steps:
 
     # - script: npm run compile
 
