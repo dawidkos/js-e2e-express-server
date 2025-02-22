@@ -27,29 +27,11 @@ stages:
 
 
 
-    - task: CopyFiles@2
-      inputs:
-        sourceFolder: '$(Build.SourcesDirectory)'
-        contents: |
-          src/*
-          public/*
-        targetFolder: '$(Build.ArtifactStagingDirectory)'
-      displayName: 'Copy project files'
-
-    - task: PublishPipelineArtifact@1
-      inputs:
-        artifactName: e2e-server
-        targetPath: '$(Build.ArtifactStagingDirectory)'
-        publishLocation: 'pipeline'
-      displayName: 'Publish npm artifact'
+    # - script: npm install -g
+    # - script: sudo npm install -g
 
 
-
-
-
-
-    - script: npm install -g
-    - script: sudo npm install -g
+    # - script: npm run compile
 
     # - script: npm install --only=dev
     # - script: npm install --only=prod
@@ -57,42 +39,68 @@ stages:
     #   inputs:
     #      command: 'install'
 
-    - script: npx mocha
-
-
-    - script: npm install -g @angular/cli
-
-
-    - script: npm run compile
-
     # typescript to javascript compiler
     # - script: tsc --target ES6 --strict true --project tsconfigs/production.json
 
-    - script: mocha test --reporter mocha-junit-reporter
 
-    - task: PublishTestResults@2
-      condition: succeededOrFailed()
+
+
+
+
+    # - task: CopyFiles@2
+    #   inputs:
+    #     sourceFolder: '$(Build.SourcesDirectory)'
+    #     contents: |
+    #       src/*
+    #       public/*
+    #     targetFolder: '$(Build.ArtifactStagingDirectory)'
+    #   displayName: 'Copy project files'
+
+    # - task: PublishPipelineArtifact@1
+    #   inputs:
+    #     artifactName: e2e-server
+    #     targetPath: '$(Build.ArtifactStagingDirectory)'
+    #     publishLocation: 'pipeline'
+    #   displayName: 'Publish npm artifact'
+
+    - task: CopyFiles@2
       inputs:
-        testRunner: JUnit
-        testResultsFiles: '**/test-results.xml'
+        Contents: 'build/**' # Pull the build directory (React)
+        TargetFolder: '$(Build.ArtifactStagingDirectory)'
 
-
-
-    - script: |
-        nyc --reporter=cobertura --reporter=html \
-        npm test -- --reporter mocha-junit-reporter --reporter-options mochaFile=./test-results.xml
-      displayName: 'Build code coverage report'
-
-    - task: PublishCodeCoverageResults@2
+    - task: PublishBuildArtifacts@1
       inputs: 
-        summaryFileLocation: '$(System.DefaultWorkingDirectory)/**/*coverage.xml'
+        PathtoPublish: $(Build.ArtifactStagingDirectory) # dist or build files
+        ArtifactName: 'www' # output artifact named www
+
+    # #upload the entire working directory of files
+    # - task: PublishBuildArtifacts@1
+    #   inputs:
+    #     PathtoPublish: '$(System.DefaultWorkingDirectory)'
+
+    # - task: CopyFiles@2
+    #   inputs:
+    #     SourceFolder: '$(System.DefaultWorkingDirectory)'
+    #     Contents: |
+    #       **\*.js
+    #       package.json
+    #     TargetFolder: '$(Build.ArtifactStagingDirectory)'
+
+    # - task: PublishBuildArtifacts@1
+    #   inputs: 
+    #     PathtoPublish: $(Build.ArtifactStagingDirectory) # dist or build files
+    #     ArtifactName: 'www' # output artifact named www
 
 
 
-- stage: package
-  pool:
-    vmImage: 'ubuntu-latest'
-  jobs:
-  - job: build
-    steps:
-    - script: npm run build
+
+
+
+
+# - stage: package
+#   pool:
+#     vmImage: 'ubuntu-latest'
+#   jobs:
+#   - job: build
+#     steps:
+#     - script: npm run build
