@@ -48,14 +48,14 @@ stages:
 
 
 
-- stage: publish
-  dependsOn: package
-  # condition: succeeded('package') #it is already checked by dependsOn
-  # pool:
-  #   vmImage: 'ubuntu-latest'
-  jobs:
-  - job: copy
-    steps:
+# - stage: publish
+#   dependsOn: package
+#   # condition: succeeded('package') #it is already checked by dependsOn
+#   # pool:
+#   #   vmImage: 'ubuntu-latest'
+#   jobs:
+#   - job: copy
+#     steps:
 
     - task: CopyFiles@2
       inputs:
@@ -83,7 +83,7 @@ stages:
         PathtoPublish: $(Build.ArtifactStagingDirectory) # dist or build files
         ArtifactName: 'wwwReactBuild' # output artifact named www
 
-    # #upload the entire working directory of files
+    # # upload the entire working directory of files
     # - task: PublishBuildArtifacts@1
     #   inputs:
     #     PathtoPublish: '$(System.DefaultWorkingDirectory)'
@@ -101,5 +101,12 @@ stages:
         PathtoPublish: $(Build.ArtifactStagingDirectory) # dist or build files
         ArtifactName: 'wwwJS' # output artifact named www
 
+
+
+    # Deploy a web app
+    - task: ArchiveFiles@2
+      inputs:
+        rootFolderOrFile: '$(System.DefaultWorkingDirectory)'
+        includeRootFolder: false
 
 
