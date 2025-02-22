@@ -63,33 +63,33 @@ stages:
     #     publishLocation: 'pipeline'
     #   displayName: 'Publish npm artifact'
 
-    - task: CopyFiles@2
-      inputs:
-        Contents: 'build/**' # Pull the build directory (React)
-        TargetFolder: '$(Build.ArtifactStagingDirectory)'
-
-    - task: PublishBuildArtifacts@1
-      inputs: 
-        PathtoPublish: $(Build.ArtifactStagingDirectory) # dist or build files
-        ArtifactName: 'www' # output artifact named www
-
-    # #upload the entire working directory of files
-    # - task: PublishBuildArtifacts@1
-    #   inputs:
-    #     PathtoPublish: '$(System.DefaultWorkingDirectory)'
-
     # - task: CopyFiles@2
     #   inputs:
-    #     SourceFolder: '$(System.DefaultWorkingDirectory)'
-    #     Contents: |
-    #       **\*.js
-    #       package.json
+    #     Contents: 'build/**' # Pull the build directory (React)
     #     TargetFolder: '$(Build.ArtifactStagingDirectory)'
 
     # - task: PublishBuildArtifacts@1
     #   inputs: 
     #     PathtoPublish: $(Build.ArtifactStagingDirectory) # dist or build files
     #     ArtifactName: 'www' # output artifact named www
+
+    # #upload the entire working directory of files
+    # - task: PublishBuildArtifacts@1
+    #   inputs:
+    #     PathtoPublish: '$(System.DefaultWorkingDirectory)'
+
+    - task: CopyFiles@2
+      inputs:
+        SourceFolder: '$(System.DefaultWorkingDirectory)'
+        Contents: |
+          **\*.js
+          package.json
+        TargetFolder: '$(Build.ArtifactStagingDirectory)'
+
+    - task: PublishBuildArtifacts@1
+      inputs: 
+        PathtoPublish: $(Build.ArtifactStagingDirectory) # dist or build files
+        ArtifactName: 'www' # output artifact named www
 
 
 
