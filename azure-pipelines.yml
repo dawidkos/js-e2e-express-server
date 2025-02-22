@@ -1,10 +1,13 @@
 trigger:
 - main
 
+pool:
+  vmImage: 'ubuntu-latest'
+
 stages:
-- stage: compile
-  pool:
-    vmImage: 'ubuntu-latest'
+- stage: installDependencies
+  # pool:
+  #   vmImage: 'ubuntu-latest'
   jobs:
   - job: install
     steps:
@@ -17,21 +20,9 @@ stages:
         npm install
       displayName: 'npm install'
 
-    - script: |
-        npm run build
-      displayName: 'npm build'
-
-    - script: 
-        npm test
-      displayName: 'npm test'
-
-
-
     # - script: npm install -g
     # - script: sudo npm install -g
 
-
-    # - script: npm run compile
 
     # - script: npm install --only=dev
     # - script: npm install --only=prod
@@ -39,39 +30,66 @@ stages:
     #   inputs:
     #      command: 'install'
 
+
+- stage: package
+  dependsOn: installDependencies
+  # condition: succeeded('installDependencies') #it is already checked by dependsOn
+
+  # pool:
+  #   vmImage: 'ubuntu-latest'
+  jobs:
+  - job: build
+    steps:
+    # - script: npm run compile
+
     # typescript to javascript compiler
     # - script: tsc --target ES6 --strict true --project tsconfigs/production.json
 
+    # - script: npm run build
+
+    - script: |
+        npm run build
+      displayName: 'npm build'
+
+    # - script: 
+    #     npm test
+    #   displayName: 'npm test'
 
 
 
+- stage: publish
+  dependsOn: package
+  # pool:
+  #   vmImage: 'ubuntu-latest'
+  jobs:
+  - job: copy
+    steps:
 
+    - task: CopyFiles@2
+      inputs:
+        sourceFolder: '$(Build.SourcesDirectory)'
+        contents: |
+          src/*
+          public/*
+        targetFolder: '$(Build.ArtifactStagingDirectory)'
+      displayName: 'Copy project files'
 
-    # - task: CopyFiles@2
-    #   inputs:
-    #     sourceFolder: '$(Build.SourcesDirectory)'
-    #     contents: |
-    #       src/*
-    #       public/*
-    #     targetFolder: '$(Build.ArtifactStagingDirectory)'
-    #   displayName: 'Copy project files'
+    - task: PublishPipelineArtifact@1
+      inputs:
+        targetPath: '$(Build.ArtifactStagingDirectory)'
+        publishLocation: 'pipeline'
+        artifactName: e2e-server
+      displayName: 'Publish npm artifact'
 
-    # - task: PublishPipelineArtifact@1
-    #   inputs:
-    #     artifactName: e2e-server
-    #     targetPath: '$(Build.ArtifactStagingDirectory)'
-    #     publishLocation: 'pipeline'
-    #   displayName: 'Publish npm artifact'
+    - task: CopyFiles@2
+      inputs:
+        Contents: 'build/**' # Pull the build directory (React)
+        TargetFolder: '$(Build.ArtifactStagingDirectory)'
 
-    # - task: CopyFiles@2
-    #   inputs:
-    #     Contents: 'build/**' # Pull the build directory (React)
-    #     TargetFolder: '$(Build.ArtifactStagingDirectory)'
-
-    # - task: PublishBuildArtifacts@1
-    #   inputs: 
-    #     PathtoPublish: $(Build.ArtifactStagingDirectory) # dist or build files
-    #     ArtifactName: 'www' # output artifact named www
+    - task: PublishBuildArtifacts@1
+      inputs: 
+        PathtoPublish: $(Build.ArtifactStagingDirectory) # dist or build files
+        ArtifactName: 'wwwReactBuild' # output artifact named www
 
     # #upload the entire working directory of files
     # - task: PublishBuildArtifacts@1
@@ -89,18 +107,7 @@ stages:
     - task: PublishBuildArtifacts@1
       inputs: 
         PathtoPublish: $(Build.ArtifactStagingDirectory) # dist or build files
-        ArtifactName: 'www' # output artifact named www
+        ArtifactName: 'wwwJS' # output artifact named www
 
 
 
-
-
-
-
-# - stage: package
-#   pool:
-#     vmImage: 'ubuntu-latest'
-#   jobs:
-#   - job: build
-#     steps:
-#     - script: npm run build
